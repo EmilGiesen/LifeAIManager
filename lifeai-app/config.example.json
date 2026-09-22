@@ -1,0 +1,18 @@
+{
+  "vault": "~/obsidian-vault",
+  "untis_file": "~/element-matrix/untis_latest.json",
+  "require_access_header": true,
+  "vapid_sub": "https://example.com",
+  "faecher": {
+    "M L2": "Mathe LK",
+    "SP L1": "Sport LK",
+    "PH G1": "Physik GK",
+    "D G2": "Deutsch GK",
+    "E G2": "Englisch GK",
+    "S1 G3": "Spanisch",
+    "SZ Z2": "SoWi ZK",
+    "GE G2": "Geschichte GK",
+    "IF G1": "Informatik",
+    "PX11": "Astronomie"
+  }
+}

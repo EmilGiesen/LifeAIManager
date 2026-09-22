@@ -1,0 +1,7 @@
+{
+  "server": "deine-schule.webuntis.com",
+  "school": "deine-schulkennung",
+  "user": "dein-benutzername",
+  "password": "dein-passwort",
+  "tage_voraus": 7
+}
