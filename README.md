@@ -76,6 +76,10 @@ Dieses Repo enthält nur den Code, keine Zugangsdaten oder Laufzeitdaten (siehe 
 - **WebApp:** FastAPI-Server, Vanilla-JS-Frontend, Service Worker + Web Push (`pywebpush`) für die PWA
 - **Zugriff & Sicherheit:** Cloudflare Tunnel, Cloudflare Access (E-Mail-Code-Login)
 
+## Einsatz von KI
+
+Bei der Umsetzung habe ich Claude als Programmier-Assistenten genutzt, vor allem für Code-Bausteine, Debugging und beim nachträglichen Aufräumen des Repos für diese Veröffentlichung. Architektur-Entscheidungen (z. B. Matrix-API statt Browser-Automatisierung, Cloudflare-Zugriffsschutz, Obsidian-Vault statt Datenbank) sowie das Testen und Verstehen des Systems im laufenden Betrieb kamen von mir. Dabei habe ich auch gelernt, wie man mit Git, dem Linux-Terminal und den Einzelteilen des Systems selbst umgeht.
+
 ## Lessons Learned
 
 Anfangs hatte ich Probleme, weil die Daten im Schul-Messenger E2E-verschlüsselt sind – ich hatte zuerst Schwierigkeiten, darauf zuzugreifen. Meine ersten Versuche waren, den Messenger im Browser mit Playwright zu steuern, da jedoch alle automatisierten Login-Versuche vom Server blockiert wurden, musste ich hier den doch sichereren Umweg mit der Matrix-API und dem SSO-Login nehmen.
