@@ -1,6 +1,6 @@
 import asyncio
 import getpass
-import jsom
+import json
 from nio import AsyncClient
 from pathlib import Path
 
