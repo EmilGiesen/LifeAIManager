@@ -1,0 +1,26 @@
+# Python-Umgebung & Cache
+venv/
+__pycache__/
+*.pyc
+
+# Secrets & Zugangsdaten
+config.json
+*_config.json
+*.pem
+element-keys.txt
+
+# Laufzeit-/Nutzerdaten
+data/
+rohdaten/
+attachments/
+crypto_store/
+sync_token*.json
+pending_megolm.json
+untis_latest.json
+
+# Backup-/Duplikat-Dateien
+*.bak.py
+Vault.io.py
+
+# Betriebssystem-Müll
+.DS_Store

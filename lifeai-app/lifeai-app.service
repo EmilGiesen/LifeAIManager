@@ -1,0 +1,13 @@
+[Unit]
+Description=LifeAI App (API + Web-App)
+After=network-online.target
+
+[Service]
+User=emil
+WorkingDirectory=/home/emil/lifeai-app
+ExecStart=/home/emil/lifeai-app/venv/bin/uvicorn server:app --host 127.0.0.1 --port 8090
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
