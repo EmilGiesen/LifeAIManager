@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 830" width="1200" height="830" font-family="Helvetica, Arial, sans-serif">
+  <title>LifeAIManager – Datenfluss</title>
+  <desc>Schuldaten aus Logineo und WebUntis werden auf dem Raspberry Pi gelesen, von n8n orchestriert, vor dem Claude-Aufruf pseudonymisiert, nach der Antwort zurückübersetzt, im Obsidian-Vault gespeichert und über die LifeAI-App per Cloudflare Tunnel angezeigt.</desc>
+  <defs>
+    <marker id="pfeil" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="830" fill="#ffffff"/>
+
+  <text x="600" y="34" text-anchor="middle" font-size="24" font-weight="700" fill="#0f172a">LifeAIManager – Datenfluss</text>
+  <text x="600" y="56" text-anchor="middle" font-size="13" fill="#64748b">Schule → Raspberry Pi → Claude (nur Pseudonyme) → Vault → App</text>
+
+  <!-- Raspberry Pi Container -->
+  <rect x="300" y="70" width="620" height="715" rx="14" fill="#f8fafc" stroke="#334155" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="316" y="92" font-size="14" font-weight="700" fill="#334155">Raspberry Pi 5 (selbst gehostet)</text>
+
+  <!-- Quellen -->
+  <text x="145" y="98" text-anchor="middle" font-size="14" font-weight="700" fill="#0369a1">Schule (nur lesend)</text>
+  <rect x="40" y="110" width="210" height="55" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
+  <text x="145" y="133" text-anchor="middle" font-size="14" font-weight="700" fill="#0f172a">Logineo NRW Messenger</text>
+  <text x="145" y="152" text-anchor="middle" font-size="12" fill="#475569">Matrix-API, E2EE-Räume</text>
+  <rect x="40" y="175" width="210" height="55" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
+  <text x="145" y="198" text-anchor="middle" font-size="14" font-weight="700" fill="#0f172a">WebUntis</text>
+  <text x="145" y="217" text-anchor="middle" font-size="12" fill="#475569">Stundenplan, Hausaufgaben</text>
+
+  <line x1="250" y1="137" x2="328" y2="137" stroke="#334155" stroke-width="2" marker-end="url(#pfeil)"/>
+  <line x1="250" y1="202" x2="328" y2="202" stroke="#334155" stroke-width="2" marker-end="url(#pfeil)"/>
+
+  <!-- A: Python-Skripte -->
+  <rect x="330" y="110" width="560" height="120" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+  <text x="610" y="140" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a">Python-Skripte (nur lesend)</text>
+  <text x="610" y="164" text-anchor="middle" font-size="13" fill="#0f172a">read_messages.py · read_untis.py</text>
+  <text x="610" y="186" text-anchor="middle" font-size="12" fill="#475569">holen neue Nachrichten, Anhänge, Stundenplan</text>
+  <text x="610" y="206" text-anchor="middle" font-size="12" fill="#475569">Ausgabe: JSON auf stdout</text>
+
+  <line x1="610" y1="230" x2="610" y2="273" stroke="#334155" stroke-width="2" marker-end="url(#pfeil)"/>
+  <text x="624" y="257" font-size="12" fill="#475569">JSON per SSH</text>
+
+  <!-- B: n8n -->
+  <rect x="330" y="275" width="560" height="85" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+  <text x="610" y="303" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a">n8n (Docker-Container) – 3 Workflows</text>
+  <text x="610" y="326" text-anchor="middle" font-size="13" fill="#0f172a">Untis · Logineo · Briefing</text>
+  <text x="610" y="346" text-anchor="middle" font-size="12" fill="#475569">ruft alle Skripte per SSH auf und steuert den Ablauf</text>
+
+  <line x1="610" y1="360" x2="610" y2="403" stroke="#334155" stroke-width="2" marker-end="url(#pfeil)"/>
+  <text x="624" y="387" font-size="12" fill="#475569">Nachrichten + Untis-Daten</text>
+
+  <!-- C: Pseudonymisieren -->
+  <rect x="330" y="405" width="560" height="100" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="610" y="433" text-anchor="middle" font-size="15" font-weight="700" fill="#14532d">Pseudonymisieren</text>
+  <text x="610" y="455" text-anchor="middle" font-size="13" fill="#0f172a">Namen → Kürzel (Lehrkraft L003, Mitschüler S012)</text>
+  <text x="610" y="474" text-anchor="middle" font-size="12" fill="#475569">Tabelle aus pseudo.py · bricht ab, wenn sie fehlt (fail-closed)</text>
+  <text x="610" y="493" text-anchor="middle" font-size="12" fill="#475569">Claudes Antwort wird zurückübersetzt (Kürzel → Namen)</text>
+
+  <!-- Claude -->
+  <rect x="1000" y="405" width="180" height="100" rx="10" fill="#ffedd5" stroke="#ea580c" stroke-width="2"/>
+  <text x="1090" y="433" text-anchor="middle" font-size="15" font-weight="700" fill="#7c2d12">Claude API</text>
+  <text x="1090" y="453" text-anchor="middle" font-size="12" fill="#475569">Anthropic (extern)</text>
+  <text x="1090" y="472" text-anchor="middle" font-size="12" font-weight="700" fill="#7c2d12">sieht nie Klarnamen</text>
+  <text x="1090" y="490" text-anchor="middle" font-size="12" fill="#475569">Zusammenfassung, Briefing</text>
+
+  <line x1="890" y1="440" x2="998" y2="440" stroke="#334155" stroke-width="2" marker-end="url(#pfeil)"/>
+  <text x="960" y="428" text-anchor="middle" font-size="11" fill="#475569">Pseudonyme</text>
+  <line x1="1000" y1="478" x2="892" y2="478" stroke="#334155" stroke-width="2" marker-end="url(#pfeil)"/>
+  <text x="960" y="496" text-anchor="middle" font-size="11" fill="#475569">Antwort</text>
+
+  <line x1="610" y1="505" x2="610" y2="548" stroke="#334155" stroke-width="2" marker-end="url(#pfeil)"/>
+  <text x="624" y="532" font-size="12" fill="#475569">fertige Notizen</text>
+
+  <!-- D: vault_io -->
+  <rect x="330" y="550" width="560" height="75" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+  <text x="610" y="578" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a">vault_io.py</text>
+  <text x="610" y="598" text-anchor="middle" font-size="12" fill="#475569">prüft jeden Pfad: schreibt nur innerhalb des Vaults</text>
+  <text x="610" y="616" text-anchor="middle" font-size="12" fill="#475569">kopiert Anhänge nur aus dem Anhang-Ordner</text>
+
+  <line x1="445" y1="625" x2="445" y2="668" stroke="#334155" stroke-width="2" marker-end="url(#pfeil)"/>
+  <text x="459" y="652" font-size="12" fill="#475569">Notizen, Anhänge</text>
+
+  <!-- E: Vault und App -->
+  <rect x="330" y="670" width="230" height="95" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+  <text x="445" y="698" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a">Obsidian-Vault</text>
+  <text x="445" y="719" text-anchor="middle" font-size="12" fill="#475569">Markdown-Dateien pro Fach</text>
+  <text x="445" y="738" text-anchor="middle" font-size="12" fill="#475569">Syncthing → PC und Handy</text>
+
+  <rect x="660" y="670" width="230" height="95" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+  <text x="775" y="698" text-anchor="middle" font-size="15" font-weight="700" fill="#0f172a">LifeAI-App (auf dem Pi)</text>
+  <text x="775" y="719" text-anchor="middle" font-size="11.5" fill="#475569">server.py · app_cli.py · vault_lib.py</text>
+  <text x="775" y="738" text-anchor="middle" font-size="12" fill="#475569">FastAPI + Header-Check</text>
+
+  <line x1="562" y1="717" x2="658" y2="717" stroke="#334155" stroke-width="2" marker-start="url(#pfeil)" marker-end="url(#pfeil)"/>
+  <text x="610" y="708" text-anchor="middle" font-size="11" fill="#475569">liest / hakt ab</text>
+
+  <!-- Cloudflare + Handy -->
+  <rect x="1000" y="670" width="180" height="95" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="1090" y="698" text-anchor="middle" font-size="15" font-weight="700" fill="#4c1d95">Cloudflare Tunnel</text>
+  <text x="1090" y="719" text-anchor="middle" font-size="12" fill="#475569">+ Access (E-Mail-PIN)</text>
+  <text x="1090" y="738" text-anchor="middle" font-size="12" fill="#475569">kein offener Port</text>
+
+  <line x1="892" y1="717" x2="998" y2="717" stroke="#334155" stroke-width="2" marker-end="url(#pfeil)"/>
+  <text x="960" y="708" text-anchor="middle" font-size="11" fill="#475569">HTTPS</text>
+
+  <line x1="1090" y1="670" x2="1090" y2="622" stroke="#334155" stroke-width="2" marker-end="url(#pfeil)"/>
+  <text x="1080" y="650" text-anchor="end" font-size="11" fill="#475569">nur nach Login</text>
+
+  <rect x="1000" y="530" width="180" height="90" rx="10" fill="#fef9c3" stroke="#ca8a04" stroke-width="2"/>
+  <text x="1090" y="558" text-anchor="middle" font-size="15" font-weight="700" fill="#713f12">Handy / PC</text>
+  <text x="1090" y="579" text-anchor="middle" font-size="12" fill="#475569">LifeAI-App (PWA)</text>
+  <text x="1090" y="598" text-anchor="middle" font-size="12" fill="#475569">Push + Obsidian</text>
+
+  <!-- Legende -->
+  <rect x="60" y="800" width="14" height="14" rx="3" fill="#e0f2fe" stroke="#0284c7"/>
+  <text x="82" y="812" font-size="12" fill="#475569">Schulsysteme</text>
+  <rect x="240" y="800" width="14" height="14" rx="3" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="262" y="812" font-size="12" fill="#475569">Datenschutz-Schritt</text>
+  <rect x="470" y="800" width="14" height="14" rx="3" fill="#ffedd5" stroke="#ea580c"/>
+  <text x="492" y="812" font-size="12" fill="#475569">externer Dienst</text>
+  <rect x="680" y="800" width="14" height="14" rx="3" fill="#ede9fe" stroke="#7c3aed"/>
+  <text x="702" y="812" font-size="12" fill="#475569">Zugriff von außen</text>
+  <rect x="900" y="800" width="14" height="14" rx="3" fill="#fef9c3" stroke="#ca8a04"/>
+  <text x="922" y="812" font-size="12" fill="#475569">meine Geräte</text>
+</svg>
