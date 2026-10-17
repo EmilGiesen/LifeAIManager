@@ -1,6 +1,6 @@
 # LifeAIManager — Automatisierter Schul- & Lebensmanager
 
-## Ziel
+## Zielf
 
 Dieses System ist ein persönliches Projekt, welches mir bei der Organisation meiner Schullaufbahn helfen soll. Ich nutze es selber täglich, um alle meine Aufgaben und anstehenden Termine in der Schule im Blick zu behalten.
 
@@ -8,7 +8,7 @@ Dieses System ist ein persönliches Projekt, welches mir bei der Organisation me
 
 n8n läuft bei mir in einem Docker-Container auf meinem Raspberry Pi 5, meine Python-Skripte dagegen laufen direkt auf dem Pi selbst außerhalb von Docker und werden von n8n per SSH aufgerufen. Gesteuert wird das ganze System von 3 n8n-Workflows. Es beginnt mit dem WebUntis-Workflow: Dieser fragt über SSH an, das read_untis.py-Skript auszuführen, sammelt dann alle Daten, baut sie zu einer JSON um und speichert sie in einer Datei ab (untis_latest.json). Dieser Workflow läuft unter der Woche jede Stunde von 7-21 Uhr und sonntags zweimal um 18 und 21 Uhr.
 
-Der Logineo-Workflow für den Schul-Messenger läuft auf einem eigenen, am Stundenplan orientierten Zeitplan und liest sich zu Beginn erstmal die zuletzt gespeicherte untis_latest.json durch, um den aktuellen Untis-Stand mit einzubeziehen. Danach führt er per SSH das read_messages.py aus und gruppiert die ganzen Daten nach Fächern und sortiert dann Textnachrichten und Anhänge. Der Text geht direkt zu Claude, wo dieser von Sonnet 5 verarbeitet wird und sauber JSON ausgibt, was dann über das vault_io.py-Skript geprüft und im Obsidian-Vault gespeichert wird. Die Anhänge werden noch nicht inhaltlich verarbeitet, sondern direkt in den passenden Fach-Ordner sortiert und abgelegt.
+Der Logineo-Workflow für den Schul-Messenger läuft auf einem eigenen, am Stundenplan orientierten Zeitplan und liest sich zu Beginn erstmal die zuletzt gespeicherte untis_latest.json durch, um den aktuellen Untis-Stand mit einzubeziehen. Danach führt er per SSH das read_messages.py aus und gruppiert die ganzen Daten nach Fächern und sortiert dann Textnachrichten und Anhänge. Der Text wird Pseudomysiert und dann an Claude weitergeleitet, wo dieser von Sonnet 5 verarbeitet wird und sauber JSON ausgibt, was dann über das vault_io.py-Skript geprüft und im Obsidian-Vault gespeichert wird. Die Anhänge werdern wenn sie eine PDF sind ausgelessen Pseudomysiert und an Claude weitergegeben und werden anschließend mit allen anderen Datein in den passenden Fach-Ordner sortiert und abgelegt.
 
 Ich habe mich aktiv gegen eine richtige Datenbank (SQL, MongoDB) entschieden, weil ich die Möglichkeit haben wollte, sowohl auf meinem Handy als auch auf meinem PC direkt über die Obsidian-App auf alle meine Dateien zuzugreifen, die dann von Syncthing synchronisiert werden.
 
@@ -26,7 +26,7 @@ Um an die Daten aus dem Schul-Messenger zu kommen, habe ich die Matrix-API genut
 
 ### WebUntis
 
-WebUntis ist nicht verschlüsselt und nutzt das JSON-RPC-Verfahren, weshalb ich mich jedes Mal neu einloggen muss. Durch das Einloggen bekomme ich von WebUntis meine SessionID, PersonType, PersonID und KlasseID, welche ich dann nutze, um meinen Stundenplan abzufragen. Ich frage immer die nächsten 7 Tage ab, dadurch weiß ich immer frühzeitig Bescheid, wenn sich etwas ändert oder Hausaufgaben bei WebUntis eingetragen wurden. Der Zugriff auf die Klausurdaten in WebUntis ist für Schüler gesperrt, weshalb ich durch WebUntis nicht herausfinden kann, wann meine Klausuren stattfinden.
+WebUntis bietet keine Ende-zu-Ende-Verschlüsselung, die Verbindung läuft über HTTPS und nutzt das JSON-RPC-Verfahren, weshalb ich mich jedes Mal neu einloggen muss. Durch das Einloggen bekomme ich von WebUntis meine SessionID, PersonType, PersonID und KlasseID, welche ich dann nutze, um meinen Stundenplan abzufragen. Ich frage immer die nächsten 7 Tage ab, dadurch weiß ich immer frühzeitig Bescheid, wenn sich etwas ändert oder Hausaufgaben bei WebUntis eingetragen wurden. Der Zugriff auf die Klausurdaten in WebUntis ist für Schüler gesperrt, weshalb ich durch WebUntis nicht herausfinden kann, wann meine Klausuren stattfinden.
 
 ## Sicherheitsaspekte
 
@@ -35,6 +35,8 @@ Ich habe meine WebApp durch einen Cloudflare-Tunnel mit E-Mail-PIN abgesichert, 
 Dadurch, dass ich auf "fremde" Systeme zugreife, habe ich besonders darauf geachtet, dass meine komplette Struktur read-only ist und es keine einzige Methode im Code gibt, die die Möglichkeit hätte, etwas zu schreiben oder eine Authentifizierungsanfrage zu schicken. Eine Ausnahme davon ist mein Vault, doch auch hier führe ich Checks aus, bevor ich etwas schreibe: So prüft das vault_io.py bei jedem Schreibvorgang erst, ob der Dateipfad auch wirklich innerhalb meines Vaults liegt. Das sichert mich auch vor Prompt-Injection-Angriffen.
 
 Alle meine Access Tokens, Passwörter und Secrets sind in Config-Dateien mit chmod 600 abgesichert, sodass nur ich darauf Zugriff habe.
+
+Zugunste des Datenschutzes nutze ich Pseudomysierung um echte nahmen durch Kürzel auszutauschen bevor ich diese an Claude sende, falls die Tabelle fehlt oder es einen fehler bei der Pseudomysierung gibt bricht der Workflow ab.
 
 ## Setup
 
@@ -71,7 +73,7 @@ Dieses Repo enthält nur den Code, keine Zugangsdaten oder Laufzeitdaten (siehe 
 - **Hardware:** Raspberry Pi 5, Raspberry Pi OS 64-bit Lite
 - **Orchestrierung:** n8n (Docker-Container)
 - **Datenquellen-Skripte:** Python 3.13, `matrix-nio[e2e]` (Matrix/Logineo), eigene WebUntis-JSON-RPC-Anbindung, `pypdf` + `python-docx` (Textauszug aus Anhängen)
-- **KI:** Anthropic Claude API (Sonnet 5 für Briefings, Haiku 4.5 für Logineo-Zusammenfassungen)
+- **KI:** Anthropic Claude API (Sonnet 5 für Briefings, Logineo-Zusammenfassungen)
 - **Speicher:** Obsidian-Vault (Markdown-Dateien), Synchronisation über Syncthing
 - **WebApp:** FastAPI-Server, Vanilla-JS-Frontend, Service Worker + Web Push (`pywebpush`) für die PWA
 - **Zugriff & Sicherheit:** Cloudflare Tunnel, Cloudflare Access (E-Mail-Code-Login)
@@ -97,3 +99,4 @@ Ich habe an erster Hand erfahren, dass die KI oft halluziniert. Ich hatte schon 
 Ich nutze das System aktuell schon im regulären Betrieb: Mir werden konkret alle Aufgaben mit Abgabedatum angezeigt, sofern sie auf WebUntis oder im Schul-Messenger notiert wurden. Außerdem kann ich immer meinen aktuellen Stundenplan mit allen Änderungen ansehen und bekomme einmal vor und einmal nach der Schule ein kleines "Briefing", was ich noch machen muss und was heute ansteht.
 
 In der Zukunft würde ich gerne noch alle meine selbst geschriebenen Notizen und erledigten Aufgaben einpflegen sowie ein manuelles Eingabefeld haben, wo ich z. B. nicht in WebUntis oder Logineo hinterlegte Aufgaben eintragen kann. Zudem plane ich, ein kleines Abfragefenster zu erstellen, wo ich dann konkret Fragen zu Arbeitsblatt-Aufgaben oder allgemein zum Vault stellen kann, um mich z. B. ideal auf Klausuren vorzubereiten und einzusehen, was wir z. B. in den letzten 6 Wochen in Mathe gemacht haben.
+
