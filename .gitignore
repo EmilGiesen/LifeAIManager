@@ -17,6 +17,8 @@ crypto_store/
 sync_token*.json
 pending_megolm.json
 untis_latest.json
+pseudonyme.json
+pseudonyme_auto.json
 
 # Backup-/Duplikat-Dateien
 *.bak.py
@@ -24,3 +26,4 @@ Vault.io.py
 
 # Betriebssystem-Müll
 .DS_Store
+pseudonyme*.json
